@@ -1,0 +1,3 @@
+access_token,[Fill In Your Access Token]
+secret,[Fill In Your Secret]
+Gemini,[Fill In Your Token]
