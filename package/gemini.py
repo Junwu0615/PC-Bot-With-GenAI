@@ -4,7 +4,6 @@
 Update Time: 2025-01-08
 """
 import google.generativeai as genai
-from package.base import BaseLogic
 
 MODEL_TYPE = 'gemini-1.5-flash'
 
@@ -12,8 +11,22 @@ class GeminiFormat:
     def __init__(self, obj):
         self.obj = obj
 
-    def chat(self, msg, token):
+    def media(self, token: str, msg: str, file) -> str:
         genai.configure(api_key=token)
         model = genai.GenerativeModel(MODEL_TYPE)
-        res = model.generate_content(msg)
+        # organ = PIL.Image.open("/path/to/organ.png")
+        response = model.generate_content([msg, file])
+        print(response.text)
+        return res.text
+
+    def chat(self, token: str, msg: str) -> str:
+        # create the prompt.
+        prompt = f"""
+        你是一位專業的繁體中文職涯顧問
+        問題內容: {msg}
+        """
+
+        genai.configure(api_key=token)
+        model = genai.GenerativeModel(MODEL_TYPE)
+        res = model.generate_content(prompt)
         return res.text

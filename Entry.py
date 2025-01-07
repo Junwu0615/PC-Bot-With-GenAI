@@ -3,25 +3,17 @@
 @author: PC
 Update Time: 2025-01-08
 """
-from flask import Flask
-from linebot.models import TextSendMessage
-from package.linebot import LineBotProcess
+import copy
+from flask import request, Flask
+from package.linebot import LineBotHandler
 
-lbp = LineBotProcess()
+lbh = LineBotHandler()
 app = Flask(__name__)
-linebot_api, handler, gemini_token = LineBotProcess.token_settings()
 
 @app.route('/', methods=['POST'])
 def main():
-    body, loader, reply_token, event_type = LineBotProcess.initial_body()
-    match event_type:
-        case 'text':
-            msg = loader['events'][0]['message']['text']
-            reply = lbp.switch(msg, gemini_token)
-        case _:
-            reply = f"<ERROR> The format doesn't comply with the regulations -> {event_type}"
-
-    linebot_api.reply_message(reply_token, TextSendMessage(reply))
+    body = request.get_data(as_text=True)
+    lbh.process(body)
     return '', 200
 
 if __name__ == '__main__':
