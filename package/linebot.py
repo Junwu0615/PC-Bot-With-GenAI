@@ -6,7 +6,7 @@ Update Time: 2025-01-09
 import copy, json
 from flask import request
 from datetime import datetime
-from linebot.models import TextSendMessage
+from linebot.models import TextSendMessage, MessageEvent, FileMessage
 from linebot import LineBotApi, WebhookHandler
 
 from package.gemini import GeminiFormat
@@ -19,33 +19,24 @@ class LineBotHandler(Interface):
     def __init__(self):
         super().__init__([])
         self.gemini = GeminiFormat(self)
-        self.linebot_api, self.gemini_token = LineBotHandler.token_settings()
-
-    @staticmethod
-    def parsing_body(body) -> tuple:
-        loader = json.loads(body)
-        loader = loader['events'][0]
-        reply_token = loader['replyToken']
-        user_id = loader['source']['userId']
-        event_type = loader['message']['type'].lower()
-        msg = loader['message']['text']
-        return reply_token, user_id, event_type, msg
+        self.linebot_api, self.handler, self.gemini_token = LineBotHandler.token_settings()
+        self.handle_event()
 
     @staticmethod
     def token_settings() -> tuple:
-        linebot_api = gemini_token = None
+        linebot_api = handler = gemini_token = None
         for _ in [i for i in open('package/token.txt', 'r')]:
             idx = _.split(',')
             match idx[0]:
                 case 'Line_Access_Token':
                     linebot_api = LineBotApi(idx[1].replace('\n', ''))
                 case 'Line_Secret':
-                    WebhookHandler(idx[1].replace('\n', ''))
+                    handler = WebhookHandler(idx[1].replace('\n', ''))
                 case 'Gemini_Token':
                     gemini_token = idx[1].replace('\n', '')
                 case _:
                     print('*** [token_settings] other error ***')
-        return linebot_api, gemini_token
+        return linebot_api, handler, gemini_token
 
     @staticmethod
     def initial_user_stat() -> dict:
@@ -59,6 +50,35 @@ class LineBotHandler(Interface):
         }
         return initial_settings
 
+    @staticmethod
+    def parsing_body(body) -> tuple:
+        loader = json.loads(body)
+        loader = loader['events'][0]
+        reply_token = loader['replyToken']
+        user_id = loader['source']['userId']
+        event_type = loader['message']['type'].lower()
+
+        match event_type:
+            case 'text':
+                msg = loader['message']['text']
+                return reply_token, user_id, event_type, msg
+            case 'image':
+                return reply_token, user_id, event_type, 'None'
+
+    def handle_event(self):
+        self.handler.add(MessageEvent, message=FileMessage)(self.handle_file)
+
+    def handle_file(self, event):
+        self.create_folder('./preprocess/')
+        file_id = event.message.id
+        file_name = event.message.file_name
+        file_size = event.message.file_size
+        message_content = line_bot_api.get_message_content(file_id)
+        self.log_warning(f'file_id: {file_id}, file_name: {file_name}, file_size: {file_size}')
+        with open(f'./preprocess/{file_name}', 'wb') as f:
+            for chunk in message_content.iter_content():
+                f.write(chunk)
+
     def process(self, body: str):
         ret = None
         event_dict = {}
@@ -70,7 +90,7 @@ class LineBotHandler(Interface):
         match event_type:
             case 'text':
                 event_dict[user_id]['text_count'] += 1
-            case 'media':
+            case 'media' | 'image':
                 event_dict[user_id]['media_count'] += 1
             case _:
                 print(f'[ERROR] event_type: {event_type}')
