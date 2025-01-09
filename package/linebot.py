@@ -4,13 +4,13 @@
 Update Time: 2025-01-09
 """
 import copy, json
-from flask import request
 from datetime import datetime
-from linebot.models import TextSendMessage, MessageEvent, FileMessage
+from flask import request, Flask, abort
 from linebot import LineBotApi, WebhookHandler
+from linebot.models import MessageEvent, TextSendMessage, TextMessage, FileMessage, ImageMessage
 
 from package.gemini import GeminiFormat
-from developer.package.norm_function import DATE_YMD_ONE, ERROR_TEXT
+from developer.package.norm_function import DATE_YMD_ONE
 from developer.package.interface import Interface
 from developer.definition.state import State
 from developer.model.TLineGenAI import TLineGenAIField, TLineGenAIFormat
@@ -18,9 +18,11 @@ from developer.model.TLineGenAI import TLineGenAIField, TLineGenAIFormat
 class LineBotHandler(Interface):
     def __init__(self):
         super().__init__([])
-        self.gemini = GeminiFormat(self)
-        self.linebot_api, self.handler, self.gemini_token = LineBotHandler.token_settings()
-        self.handle_event()
+        self.app = Flask(__name__)
+        self.linebot_api, self.handler, gemini_token = LineBotHandler.token_settings()
+        self.gemini = GeminiFormat(self, gemini_token)
+        self.register_event()
+        self.register_routes()
 
     @staticmethod
     def token_settings() -> tuple:
@@ -65,21 +67,26 @@ class LineBotHandler(Interface):
             case 'image':
                 return reply_token, user_id, event_type, 'None'
 
-    def handle_event(self):
-        self.handler.add(MessageEvent, message=FileMessage)(self.handle_file)
+    def register_event(self):
+        self.handler.add(MessageEvent, message=TextMessage)(self.process)
+        self.handler.add(MessageEvent, message=FileMessage)(self.process)
+        self.handler.add(MessageEvent, message=ImageMessage)(self.process)
 
-    def handle_file(self, event):
-        self.create_folder('./preprocess/')
+    def process(self, event):
+        self.log_info(f"Event received: {event}")
+        if isinstance(event.message, TextMessage):
+            self.log_info(f"Text message: {event.message.text}")
+        elif isinstance(event.message, FileMessage):
+            self.log_info(f"File message: {event.message.file_name}")
+        elif isinstance(event.message, ImageMessage):
+            self.log_info("Image message received.")
+
         file_id = event.message.id
         file_name = event.message.file_name
         file_size = event.message.file_size
         message_content = line_bot_api.get_message_content(file_id)
         self.log_warning(f'file_id: {file_id}, file_name: {file_name}, file_size: {file_size}')
-        with open(f'./preprocess/{file_name}', 'wb') as f:
-            for chunk in message_content.iter_content():
-                f.write(chunk)
 
-    def process(self, body: str):
         ret = None
         event_dict = {}
         reply_token, user_id, event_type, msg = LineBotHandler.parsing_body(body)
@@ -113,7 +120,7 @@ class LineBotHandler(Interface):
                 ret = 'Coming Soon ...'
 
             case event_type if event_type[:5] == 'admin':
-                ret = self.gemini.chat(self.gemini_token, msg)
+                ret = self.gemini.chat(msg[5:])
 
             case _:
                 ret =  "<ERROR> The format doesn't match type."
@@ -126,7 +133,7 @@ class LineBotHandler(Interface):
         # json.dump(event_dict, open('sample/record.json', 'w'))
         check_datum = self.get_datum(db_name=TLineGenAIField.DB_NAME.value,
                                      table_format=TLineGenAIFormat,
-                                     WHERE=f"USER_ID = '{user_id}'")
+                                     **{'SQL_WHERE': f"USER_ID = '{user_id}'"})
         datum = {
             user_id: {
                 TLineGenAIField.USER_ID.value: user_id,
@@ -149,3 +156,24 @@ class LineBotHandler(Interface):
         self.save_datum(db_name=TLineGenAIField.DB_NAME.value,
                         table_format=TLineGenAIFormat,
                         save_data=datum)
+
+    def register_routes(self):
+        self.app.add_url_rule('/callback', methods=['POST'], view_func=self.callback)
+
+    def callback(self):
+        body = request.get_data(as_text=True)
+        signature = request.headers['X-Line-Signature']
+        try:
+            self.log_info(f'Received body: {body}')
+            self.log_info(f'Received signature: {signature}')
+            self.handler.handle(body, signature)
+
+        except:
+            self.log_error(exc_info=True)
+            abort(400)
+        finally:
+            return '', 200
+
+    def run(self, host='0.0.0.0', port=5000):
+        self.app.run(port=port)
+        # self.app.run(host=host, port=port)
