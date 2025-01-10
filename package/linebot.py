@@ -3,7 +3,7 @@
 @author: PC
 Update Time: 2025-01-10
 """
-import os, copy, json
+import os, copy, json, requests
 from decimal import Decimal, ROUND_HALF_UP
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import TextSendMessage
@@ -15,14 +15,18 @@ from developer.definition.state import State
 from developer.model.TLineGenAI import TLineGenAIField, TLineGenAIFormat
 
 SAVE_PATH = './preprocess'
-NORM_SERVE = ['identify food and feedback', 'gif meme name search',
-              'human companion robot', 'generate self-introduction']
+TEXT_SERVE = ["creator’s github", "creator’s dashboard", 'human companion robot']
+NORM_SERVE = ['identify food and feedback', 'gif meme name search', 'generate self-introduction']
+SPECIAL_MISSION = ['admin', 'upload to gist']
+GIST_API_URL = "https://api.github.com/gists"
 
 class LineBotHandler(Interface):
-    def __init__(self, linebot_api, gemini_token):
+    def __init__(self, linebot_api, gemini_token, github_token):
         super().__init__([])
+        self.use_count = 0
         self.gemini = GeminiFormat(self, gemini_token)
         self.linebot_api = linebot_api
+        self.github_token = github_token
         self.event, self.stat, self.ret = LineBotHandler.initial_stat()
 
     @staticmethod
@@ -37,32 +41,139 @@ class LineBotHandler(Interface):
 
     @staticmethod
     def token_settings() -> tuple:
-        linebot_api = handler = gemini_token = None
+        linebot_api, handler, gemini_token, github_token = None, None, None, None
         for _ in [i for i in open('package/token.txt', 'r')]:
             idx = _.split(',')
             match idx[0]:
-                case 'Line_Access':
+                case 'LINE_ACCESS_TOKEN':
                     linebot_api = LineBotApi(idx[1].replace('\n', ''))
-                case 'Line_Secret':
+                case 'LINE_SECRET_TOKEN':
                     handler = WebhookHandler(idx[1].replace('\n', ''))
-                case 'Gemini_Token':
+                case 'GEMINI_TOKEN':
                     gemini_token = idx[1].replace('\n', '')
+                case 'GITHUB_PERSONAL_TOKEN':
+                    github_token = idx[1].replace('\n', '')
                 case _:
                     self.log_error('*** [token_settings] other error ***')
-        return linebot_api, handler, gemini_token
+        return linebot_api, handler, gemini_token, github_token
 
     @staticmethod
     def initial_stat() -> tuple[dict, dict, str]:
         stat = {
             'text_count': 0,
             'media_count': 0,
-            'identify food and feedback': 0,
-            'gif meme name search': 0,
-            'human companion robot': 0,
-            'generate self-introduction': 0,
+            "creator’s github": 0, # A
+            'identify food and feedback': 0, # B
+            'gif meme name search': 0, # C
+            "creator’s dashboard": 0, # D
+            'human companion robot': 0, # E
+            'generate self-introduction': 0, # F
         }
         event = {'msg': 'None', 'file1': None, 'file2': None}
         return event, stat, ''
+
+    def switch_gist(self):
+        file = './package/git_gist.txt'
+        if os.path.exists(file):
+            gist_id = [i for i in open(file, 'r')][0]
+            self.ret = self.patch_upload_to_gist(gist_id)
+        else:
+            self.ret = self.once_upload_to_gist()
+
+    def once_upload_to_gist(self) -> str:
+        # # 讀取本地文件，並上傳數據
+        # file_path = 'example.txt'
+        # description = 'This is an example Gist file uploaded via API'
+        # is_public = False  # 是否公開 Gist
+        # with open(file_path, "r") as file:
+        #     file_content = file.read()
+        #
+        # payload = {
+        #     'description': description,
+        #     'public': is_public,
+        #     'files': {
+        #         'example.txt': {
+        #             'content': file_content
+        #         }
+        #     }
+        # }
+        # 單純上傳數據
+        get_data = self.get_datum(db_name=TLineGenAIField.DB_NAME.value, table_format=TLineGenAIFormat, **{'SQL_WHERE': "1=1'"})
+        stat = {'user': 0, 'text count': 0, 'media count': 0,
+                'a. service': 0, 'b. service': 0, 'c. service': 0,
+                'd. service': 0, 'e. service': 0, 'f. service': 0}
+        for k,v in get_data.items():
+            stat['user'] += 1
+            stat['text count'] += v['TEXT_COUNT']
+            stat['media count'] += v['MEDIA_COUNT']
+            stat['a. service'] += v['A_SERVE']
+            stat['b. service'] += v['B_SERVE']
+            stat['c. service'] += v['C_SERVE']
+            stat['d. service'] += v['D_SERVE']
+            stat['e. service'] += v['E_SERVE']
+            stat['f. service'] += v['F_SERVE']
+
+        payload = {
+            'description': 'For streamlit dashboard using.',
+            'public': True,
+            'files': {
+                'PC-Bot-With-GenAI.json': {
+                    'content': json.dumps(stat, ensure_ascii=False, indent=4)
+                }
+            }
+        }
+        headers = {"Authorization": f"token {self.github_token}"}
+        res = requests.post(GIST_API_URL, json=payload, headers=headers)
+        if res.status_code in [200, 201]:
+            gist_url = res.json()["html_url"]
+            ret = f'Gist created successfully! URL: {gist_url}'
+            self.log_warning(ret)
+            # 第一次上傳保留位置紀錄，下次直接基於紀錄延續做更新
+            with open('./package/git_gist.txt', 'w') as f:
+                f.write(gist_url.split('/')[-1])
+            return ret
+        else:
+            ret = f'Failed to create Gist: {res.status_code}'
+            self.log_error(f'{ret}')
+            return ret
+
+    def patch_upload_to_gist(self, gist_id: str) -> str:
+        # 更新既有數據
+        get_data = self.get_datum(db_name=TLineGenAIField.DB_NAME.value, table_format=TLineGenAIFormat, **{'SQL_WHERE': "1=1'"})
+        stat = {'user': 0, 'text count': 0, 'media count': 0,
+                'a. service': 0, 'b. service': 0, 'c. service': 0,
+                'd. service': 0, 'e. service': 0, 'f. service': 0}
+        for k,v in get_data.items():
+            stat['user'] += 1
+            stat['text count'] += v['TEXT_COUNT']
+            stat['media count'] += v['MEDIA_COUNT']
+            stat['a. service'] += v['A_SERVE']
+            stat['b. service'] += v['B_SERVE']
+            stat['c. service'] += v['C_SERVE']
+            stat['d. service'] += v['D_SERVE']
+            stat['e. service'] += v['E_SERVE']
+            stat['f. service'] += v['F_SERVE']
+
+        payload = {
+            'description': 'For streamlit dashboard using.',
+            'public': True,
+            'files': {
+                'PC-Bot-With-GenAI.json': {
+                    'content': json.dumps(stat, ensure_ascii=False, indent=4)
+                }
+            }
+        }
+        headers = {"Authorization": f"token {self.github_token}"}
+        res = requests.post(GIST_API_URL + '/' + gist_id, json=payload, headers=headers)
+        if res.status_code in [200, 201]:
+            gist_url = res.json()["html_url"]
+            ret = f'Gist update data successfully! URL: {gist_url}'
+            self.log_warning(ret)
+            return ret
+        else:
+            ret = f'Failed to update data: {res.status_code}'
+            self.log_error(f'{ret}')
+            return ret
 
     def parsing_event(self, event) -> tuple[str, str, str, str]:
         user_id = event.source.user_id
@@ -88,19 +199,23 @@ class LineBotHandler(Interface):
                 TLineGenAIField.USER_ID.value: user_id,
                 TLineGenAIField.TEXT_COUNT.value: stat['text_count'],
                 TLineGenAIField.MEDIA_COUNT.value: stat['media_count'],
-                TLineGenAIField.A_SERVE.value: stat['identify food and feedback'],
-                TLineGenAIField.B_SERVE.value: stat['gif meme name search'],
-                TLineGenAIField.C_SERVE.value: stat['human companion robot'],
-                TLineGenAIField.D_SERVE.value: stat['generate self-introduction'],
+                TLineGenAIField.A_SERVE.value: stat["creator’s github"],
+                TLineGenAIField.B_SERVE.value: stat['identify food and feedback'],
+                TLineGenAIField.C_SERVE.value: stat['gif meme name search'],
+                TLineGenAIField.D_SERVE.value: stat["creator’s dashboard"],
+                TLineGenAIField.E_SERVE.value: stat['human companion robot'],
+                TLineGenAIField.F_SERVE.value: stat['generate self-introduction'],
             }
         }
-        if check_datum != {}:
+        if check_datum != {} and user_id in check_datum:
             datum[user_id][TLineGenAIField.TEXT_COUNT.value] += check_datum[user_id]['TEXT_COUNT']
             datum[user_id][TLineGenAIField.MEDIA_COUNT.value] += check_datum[user_id]['MEDIA_COUNT']
             datum[user_id][TLineGenAIField.A_SERVE.value] += check_datum[user_id]['A_SERVE']
             datum[user_id][TLineGenAIField.B_SERVE.value] += check_datum[user_id]['B_SERVE']
             datum[user_id][TLineGenAIField.C_SERVE.value] += check_datum[user_id]['C_SERVE']
             datum[user_id][TLineGenAIField.D_SERVE.value] += check_datum[user_id]['D_SERVE']
+            datum[user_id][TLineGenAIField.E_SERVE.value] += check_datum[user_id]['E_SERVE']
+            datum[user_id][TLineGenAIField.F_SERVE.value] += check_datum[user_id]['F_SERVE']
 
         self.save_datum(db_name=TLineGenAIField.DB_NAME.value,
                         table_format=TLineGenAIFormat,
@@ -108,9 +223,21 @@ class LineBotHandler(Interface):
 
     def process(self, event=None, file=None):
         try:
+            self.use_count += 1
             user_id, event_type, msg, reply_token = self.parsing_event(event)
-            if msg.lower() in NORM_SERVE:
+            if ((self.event['msg'].lower() in NORM_SERVE or self.event['msg'].lower() in TEXT_SERVE)
+                    and (msg.lower() in NORM_SERVE or msg.lower() in TEXT_SERVE)):
+                self.event, self.stat, self.ret = LineBotHandler.initial_stat()
                 self.event['msg'] = msg
+            elif msg.lower() in NORM_SERVE or msg.lower() in TEXT_SERVE:
+                self.event['msg'] = msg
+            elif msg.lower()[:5] in SPECIAL_MISSION:
+                self.event['msg'] = msg
+            elif msg.lower()[:14] in SPECIAL_MISSION:
+                self.event['msg'] = msg
+            else:
+                self.event['msg'] = msg
+
             if file is not None:
                 self.event['file1'] = file
 
@@ -135,6 +262,16 @@ class LineBotHandler(Interface):
 
             elif self.event['msg'] != 'None' and self.event['file1'] is None:
                 match self.event['msg'].lower():
+                    case "creator’s github":
+                        self.ret = 'https://github.com/Junwu0615'
+                        self.stat["creator’s github"] += 1
+                        self.stat['text_count'] += 1
+
+                    case "creator’s dashboard":
+                        self.ret = 'https://pc-dashboard.streamlit.app/'
+                        self.stat["creator’s dashboard"] += 1
+                        self.stat['text_count'] += 1
+
                     case 'identify food and feedback':
                         self.ret = '請上傳食物照片'
 
@@ -143,21 +280,27 @@ class LineBotHandler(Interface):
 
                     case 'human companion robot':
                         self.ret = 'Coming Soon ...'
+                        self.stat['human companion robot'] += 1
+                        self.stat['text_count'] += 1
 
                     case 'generate self-introduction':
                         self.ret = '請貼上欲應徵職缺連結'
 
-                    case event_type if event_type[:5] == 'admin':
+                    case msg if msg[:14] == 'upload to gist':
+                        self.switch_gist()
+                        self.stat['text_count'] += 1
+
+                    case msg if msg[:5] == 'admin':
                         self.ret = self.gemini.casual_chat(msg[5:])
                         self.stat['text_count'] += 1
-                        self.save_state_db(user_id, self.stat)
-                        self.event, self.stat, self.ret = LineBotHandler.initial_stat()
 
                     case _:
-                        self.event, self.stat, self.ret = LineBotHandler.initial_stat()
                         self.ret = "<ERROR: 1> The format doesn't match type."
 
                 self.linebot_api.reply_message(reply_token, TextSendMessage(self.ret))
+                if self.event['msg'].lower() not in NORM_SERVE:
+                    self.save_state_db(user_id, self.stat)
+                    self.event, self.stat, self.ret = LineBotHandler.initial_stat()
 
             elif self.event['msg'] != 'None' and self.event['file1'] is not None:
                 match self.event['msg'].lower():
@@ -171,10 +314,10 @@ class LineBotHandler(Interface):
                         self.stat['gif meme name search'] += 1
                         self.stat['media_count'] += 1
 
-                    case 'human companion robot':
-                        self.ret = 'Coming Soon ...'
-                        self.stat['human companion robot'] += 1
-                        self.stat['media_count'] += 1
+                    # case 'human companion robot':
+                    #     self.ret = 'Coming Soon ...'
+                    #     self.stat['human companion robot'] += 1
+                    #     self.stat['text_count'] += 1
 
                     case 'generate self-introduction':
                         if self.event['file2'] is None:
@@ -188,14 +331,17 @@ class LineBotHandler(Interface):
                             self.stat['media_count'] += 1
 
                     case _:
-                        self.event, self.stat, self.ret = LineBotHandler.initial_stat()
                         self.ret = "<ERROR: 2> The format doesn't match type."
 
-                if self.stat['media_count'] == 0:
-                    self.linebot_api.reply_message(reply_token, TextSendMessage(self.ret))
+                self.linebot_api.reply_message(reply_token, TextSendMessage(self.ret))
+                if self.stat['media_count'] == 0 and self.event['msg'].lower() in NORM_SERVE:
+                    pass
+
+                elif self.stat['media_count'] == 0 and msg.lower() not in NORM_SERVE:
+                    self.event, self.stat, self.ret = LineBotHandler.initial_stat()
+
                 else:
                     self.log_warning(f"user id: {user_id}, content type: {event_type}, msg: {msg}")
-                    self.linebot_api.reply_message(reply_token, TextSendMessage(self.ret))
                     self.save_state_db(user_id, self.stat)
                     self.event, self.stat, self.ret = LineBotHandler.initial_stat()
 
@@ -203,6 +349,9 @@ class LineBotHandler(Interface):
                 self.event, self.stat, self.ret = LineBotHandler.initial_stat()
                 self.ret = '<ERROR: 3> UNKNOWN'
                 self.linebot_api.reply_message(reply_token, TextSendMessage(self.ret))
+
+            if self.use_count % 10 == 0:
+                self.switch_gist()
 
         except:
             self.log_error(exc_info=True)

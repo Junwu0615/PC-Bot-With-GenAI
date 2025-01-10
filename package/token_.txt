@@ -1,3 +1,4 @@
-access_token,[Fill In Your Access Token]
-secret,[Fill In Your Secret]
-Gemini,[Fill In Your Token]
+LINE_ACCESS_TOKEN,[Fill In Your Access Token]
+LINE_SECRET_TOKEN,[Fill In Your Secret]
+GEMINI_TOKEN,[Fill In Your Token]
+GITHUB_PERSONAL_TOKEN,[Fill In Your Token]

@@ -8,8 +8,8 @@ from linebot.models import MessageEvent, TextMessage, FileMessage, ImageMessage
 from package.linebot import LineBotHandler
 
 app = Flask(__name__)
-linebot_api, handler, gemini_token = LineBotHandler.token_settings()
-lbh = LineBotHandler(linebot_api, gemini_token)
+linebot_api, handler, gemini_token, github_token = LineBotHandler.token_settings()
+lbh = LineBotHandler(linebot_api, gemini_token, github_token)
 
 SAVE_PATH = './preprocess'
 

@@ -4,4 +4,3 @@ __pycache__
 .github
 token.txt
 preprocess
-record.json
