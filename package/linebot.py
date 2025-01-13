@@ -225,6 +225,8 @@ class LineBotHandler(Interface):
         try:
             self.use_count += 1
             user_id, event_type, msg, reply_token = self.parsing_event(event)
+
+            # 應處理接收字串的判斷式
             if ((self.event['msg'].lower() in NORM_SERVE or self.event['msg'].lower() in TEXT_SERVE)
                     and (msg.lower() in NORM_SERVE or msg.lower() in TEXT_SERVE)):
                 self.event, self.stat, self.ret = LineBotHandler.initial_stat()
@@ -235,12 +237,12 @@ class LineBotHandler(Interface):
                 self.event['msg'] = msg
             elif msg.lower()[:14] in SPECIAL_MISSION:
                 self.event['msg'] = msg
-            else:
-                self.event['msg'] = msg
 
+            # [其他服務] 接受檔案的判斷式
             if file is not None:
                 self.event['file1'] = file
 
+            # [生成自介] 接受檔案的判斷式
             if (self.event['msg'] == 'Generate Self-Introduction' and
                     self.event['file1'] is None and msg != 'Generate Self-Introduction' and 'http' in msg):
                 self.event['file1'] = msg
@@ -252,6 +254,14 @@ class LineBotHandler(Interface):
             elif (self.event['msg'] == 'Generate Self-Introduction' and
                     self.event['file1'] is not None and msg != 'Generate Self-Introduction' and SAVE_PATH in file):
                 self.event['file2'] = file
+
+            elif (self.event['msg'] == 'Generate Self-Introduction' and
+                    self.event['file1'] is None and msg != 'Generate Self-Introduction' and 'http' not in msg):
+                self.event['msg'] = 'None'
+
+            elif (self.event['msg'] == 'Generate Self-Introduction' and
+                    self.event['file1'] is not None and msg != 'Generate Self-Introduction' and 'http' not in msg):
+                self.event['msg'] = 'None'
 
             self.log_info(f'{self.event}')
 
@@ -313,11 +323,6 @@ class LineBotHandler(Interface):
                         self.ret = self.gemini.meme_search(self.event['file1'])
                         self.stat['gif meme name search'] += 1
                         self.stat['media_count'] += 1
-
-                    # case 'human companion robot':
-                    #     self.ret = 'Coming Soon ...'
-                    #     self.stat['human companion robot'] += 1
-                    #     self.stat['text_count'] += 1
 
                     case 'generate self-introduction':
                         if self.event['file2'] is None:

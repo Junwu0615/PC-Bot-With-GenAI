@@ -20,11 +20,11 @@ class GeminiFormat:
         model = genai.GenerativeModel(MODEL_TYPE)
         organ = Image.open(file1)
         prompt = f"""
-        你是一位迷因大師，閱覽無數個迷因內容，同時記住迷因的名稱
-        這張迷因圖是何名稱?
+        你是一位迷因大師，閱覽無數個迷因內容。
+        這張迷因圖可能的名稱?
         * 遵守下列條件:
         - 名稱用[英文表達]
-        - 只顯示結果，無贅詞等
+        - 只顯示答覆結果，無贅詞，無多餘換行等
         - 請勿幻覺答覆
         """
         res = model.generate_content([prompt, organ])
@@ -37,9 +37,10 @@ class GeminiFormat:
         organ = Image.open(file1)
         prompt = f"""
         你是一位嚐遍各國美食的美食家，同時也是營養學大師，擁有豐富的增肌減脂的經驗，
-        這張食物圖，你看到哪些食物，並且這些食物是否有改善空間(營養成分, 熱量推估)
+        這張食物圖，描述看到哪些食物，並且這些食物是否有改善空間 ? 
+        評估可能的營養成分和盡可能的推估熱量
         * 遵守下列條件:
-        - 答覆結果，無贅詞等
+        - 只顯示答覆結果，無贅詞，無多餘換行等
         - 無法識別也明確答覆
         - 請勿幻覺答覆
         """
@@ -57,7 +58,7 @@ class GeminiFormat:
         * 遵守下列條件:
         - 須上網了解求職者履歷
         - 須上網了解求職者欲投職缺
-        - 答覆結果，無贅詞等
+        - 只顯示答覆結果，無贅詞，無多餘換行等
         - 請勿幻覺答覆
         """
         res = model.generate_content(prompt)
@@ -75,7 +76,7 @@ class GeminiFormat:
         你是一位專業的繁體中文職涯顧問，基於求職者欲投職缺，並基於給予的履歷生成簡潔的自我介紹
         * 求職者欲投職缺: {file1}
         * 遵守下列條件:
-        - 答覆結果，無贅詞等
+        - 只顯示答覆結果，無贅詞，無多餘換行等
         - 請勿幻覺答覆
         """
         res = model.generate_content([{'mime_type': 'application/pdf', 'data': doc_data}, prompt])
@@ -87,8 +88,8 @@ class GeminiFormat:
         你是一位專業的繁體中文職涯顧問
         問題內容: {msg}
         遵守下列條件:
-        -答覆結果，無贅詞等
-        -請勿幻覺答覆
+        - 只顯示答覆結果，無贅詞，無多餘換行等
+        - 請勿幻覺答覆
         """
         genai.configure(api_key=self.token)
         model = genai.GenerativeModel(MODEL_TYPE)
