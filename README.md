@@ -18,6 +18,7 @@
 <br>
 
 ## *B.　How To Use*
+
 ### *STEP.1　Clone*
 ```python
 git clone https://github.com/Junwu0615/PC-Bot-With-GenAI.git
@@ -41,6 +42,24 @@ ngrok http 5000
 <br>
 
 ## *C.　Dockerization*
+
+### *Directory Structure Diagram*
+```commandline
+PC-Bot-With-GenAI/docker
+  ├── app
+  │   ├── package
+  │   │   ├── __init__.py
+  │   │   ├── gemini.py
+  │   │   ├── linebot.py
+  │   │   └── git_gist.txt
+  │   ├── Entry.py
+  │   └── requirements.txt
+  └── script
+      ├── .env
+      ├── docker-compose.yaml
+      └── Dockerfile
+```
+
 ### *STEP.1　進入腳本路徑*
 ```bash
 cd docker
