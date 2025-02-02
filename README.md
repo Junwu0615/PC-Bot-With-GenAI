@@ -19,30 +19,6 @@
 
 ## *B.　How To Use*
 
-### *STEP.1　Clone*
-```python
-git clone https://github.com/Junwu0615/PC-Bot-With-GenAI.git
-```
-### *STEP.2　Requirements*
-```python
-pip install -r requirements.txt
-```
-### *STEP.3　Run*
-```python
-python Entry.py
-```
-### *STEP.4　Open ngrok.exe*
-```python
-# Flask's Port: 5000
-ngrok http 5000
-```
-- `Forwarding` 後面的網址複製起來，ex: https://xxxx.ngrok-free.app
-- 到 [LINE Developer](https://developers.line.biz/zh-hant/) 中 Channel 的 `Messaging API`，找到標籤 `Webhook URL` 將網址更新上去。
-
-<br>
-
-## *C.　Dockerization*
-
 ### *Directory Structure Diagram*
 ```commandline
 PC-Bot-With-GenAI/docker
@@ -60,12 +36,17 @@ PC-Bot-With-GenAI/docker
       └── Dockerfile
 ```
 
-### *STEP.1　進入腳本路徑*
+### *STEP.1　Clone*
+```python
+git clone https://github.com/Junwu0615/PC-Bot-With-GenAI.git
+```
+
+### *STEP.2　進入腳本路徑*
 ```bash
 cd docker
 ```
 
-### *STEP.2　新增檔案 : `./script/.env`*
+### *STEP.3　新增檔案 : `./script/.env`*
 ```commandline
 SQL_SERVICE_DRIVER=17
 SQL_SERVICE_BROKER_HOST=<Your SQL Server IP>,<YOUR SQL Server Port>
@@ -76,26 +57,39 @@ LINE_ACCESS_TOKEN=[Fill In Your Access Token]
 LINE_SECRET_TOKEN=[Fill In Your Secret]
 GEMINI_TOKEN=[Fill In Your Token]
 GITHUB_PERSONAL_TOKEN=[Fill In Your Token]
+NGROK_AUTHTOKEN=[Fill In Your Token]
+DOCKER_BOOL=True
 ```
 
-### *STEP.3　安裝 Dockerfile*
+### *STEP.4　安裝 Dockerfile*
 ```bash
 docker build -t pc-bot-with-genai:latest -f script/Dockerfile . --no-cache
 ```
 
-### *STEP.4　安裝 docker-compose*
+### *STEP.5　安裝 docker-compose*
 ```bash
 docker stack deploy -c script/docker-compose.yaml pc-bot-with-genai
 ```
+![jpg](/sample/docker_00.jpg)
 
-### *STEP.5　檢視 docker service 清單*
+### *STEP.6　檢視 docker service 清單*
 ```bash
 docker service ls
 ```
+![jpg](/sample/docker_01.jpg)
 
-### *STEP.6　查看專案 log 打印*
+### *STEP.7　查看 stack service 數量是否正確*
 ```bash
-docker service logs -f pc-bot-with-genai-task
+docker stack ls
 ```
+![jpg](/sample/docker_02.jpg)
 
-![docker_01.jpg](/sample/docker_01.jpg)
+### *STEP.8　查看專案 log 打印*
+```bash
+docker service logs -f pc-bot-with-genai_ngrok
+```
+![jpg](/sample/docker_03.jpg)
+```bash
+docker service logs -f pc-bot-with-genai_task
+```
+![jpg](/sample/docker_04.jpg)

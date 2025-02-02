@@ -19,9 +19,9 @@ from linebot.models import MessageEvent, TextMessage, FileMessage, ImageMessage
 from package.linebot import LineBotHandler
 
 app = Flask(__name__)
-linebot_api, handler, gemini_token, github_token = LineBotHandler.token_settings()
-lbh = LineBotHandler(linebot_api, gemini_token, github_token)
-
+linebot_token, handler, gemini_token, github_token = LineBotHandler.token_settings()
+lbh = LineBotHandler(linebot_token, gemini_token, github_token)
+lbh.update_webhook()
 SAVE_PATH = os.environ.get('SAVE_PATH')
 
 @app.route('/callback', methods=['POST'])
@@ -48,7 +48,7 @@ def file_message(event: MessageEvent):
         msg_id = event.message.id
         msg_name = event.message.file_name
         msg_size = LineBotHandler.make_decimal(event.message.file_size/1024/1024, '0.01')
-        msg_content = linebot_api.get_message_content(msg_id).iter_content()
+        msg_content = linebot_token.get_message_content(msg_id).iter_content()
         file_name = f'{SAVE_PATH}/{msg_id}_{msg_name}'
         print(f'msg_id: {msg_id}, msg_name: {msg_name}, msg_size: {msg_size} MB')
         with open(file_name, 'wb') as f:
@@ -62,7 +62,7 @@ def img_message(event: MessageEvent):
     LineBotHandler.make_folder(SAVE_PATH)
     if isinstance(event.message, ImageMessage):
         msg_id = event.message.id
-        msg_content = linebot_api.get_message_content(msg_id).iter_content()
+        msg_content = linebot_token.get_message_content(msg_id).iter_content()
         file_name = f'{SAVE_PATH}/{msg_id}.jpg'
         with open(file_name, 'wb') as f:
             for chunk in msg_content:

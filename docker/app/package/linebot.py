@@ -2,7 +2,9 @@
 """
 @author: PC
 """
-import os, copy, json, requests
+import os, copy, json, requests, subprocess
+import time
+from subprocess import PIPE, STDOUT
 from decimal import Decimal, ROUND_HALF_UP
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import TextSendMessage
@@ -20,11 +22,11 @@ SPECIAL_MISSION = ['admin', 'upload to gist']
 GIST_API_URL = "https://api.github.com/gists"
 
 class LineBotHandler(Interface):
-    def __init__(self, linebot_api, gemini_token, github_token):
+    def __init__(self, linebot_token, gemini_token, github_token):
         super().__init__([])
         self.use_count = 0
         self.gemini = GeminiFormat(self, gemini_token)
-        self.linebot_api = linebot_api
+        self.linebot_token = linebot_token
         self.github_token = github_token
         self.event, self.stat, self.ret = LineBotHandler.initial_stat()
 
@@ -40,11 +42,11 @@ class LineBotHandler(Interface):
 
     @staticmethod
     def token_settings() -> tuple:
-        linebot_api = LineBotApi(os.environ.get('LINE_ACCESS_TOKEN'))
+        linebot_token = LineBotApi(os.environ.get('LINE_ACCESS_TOKEN'))
         handler = WebhookHandler(os.environ.get('LINE_SECRET_TOKEN'))
         gemini_token = os.environ.get('GEMINI_TOKEN')
         github_token = os.environ.get('GITHUB_PERSONAL_TOKEN')
-        return linebot_api, handler, gemini_token, github_token
+        return linebot_token, handler, gemini_token, github_token
 
     @staticmethod
     def initial_stat() -> tuple[dict, dict, str]:
@@ -60,6 +62,54 @@ class LineBotHandler(Interface):
         }
         event = {'msg': 'None', 'file1': None, 'file2': None}
         return event, stat, ''
+
+    def update_webhook(self):
+        try:
+            self.log_warning('Wait for NGROK to start (10s) ...')
+            time.sleep(10)
+            self.log_warning('Update Linebot Webhook...')
+            linebot_token = os.environ.get('LINE_ACCESS_TOKEN')
+            args = 'curl -s http://localhost:4040/api/tunnels' if os.environ.get('DOCKER_BOOL') is None \
+                else 'curl -s http://host.docker.internal:4040/api/tunnels'
+            pop = subprocess.Popen(args,
+                                   stdout=PIPE,
+                                   stderr=STDOUT,
+                                   shell=True,
+                                   )
+            while pop.poll() is None:
+                line = pop.stdout.readline()
+                try:
+                    line = line.decode('utf8')
+                    if line != '':
+                        # self.log_info(line)
+                        loader = json.loads(line)
+                        headers = {
+                            "Content-Type": "application/json",
+                            "Authorization": f"Bearer {linebot_token}"
+                        }
+                        url = f"{loader['tunnels'][0]['public_url']}/callback"
+                        payload = {
+                            "endpoint": url
+                        }
+                        res = requests.put("https://api.line.me/v2/bot/channel/webhook/endpoint",
+                                           headers=headers,
+                                           data=json.dumps(payload))
+                        self.log_warning(f"[Change Webhook URL] callback | code: {res.status_code} | url: {url}")
+
+                        headers = {
+                            "Authorization": f"Bearer {linebot_token}"
+                        }
+                        res = requests.post("https://api.line.me/v2/bot/channel/webhook/test",
+                                            headers=headers)
+                        self.log_warning(f"[Verify Webhook URL] callback | code: {res.status_code} | content: {res.text}")
+
+                except UnicodeDecodeError as e:
+                    pass
+                except:
+                    self.log_error(exc_info=True)
+
+        except:
+            self.log_error(exc_info=True)
 
     def switch_gist(self):
         file = './package/git_gist.txt'
@@ -241,7 +291,7 @@ class LineBotHandler(Interface):
             if self.event['msg'] == 'None' and self.event['file1'] is not None:
                 self.event, self.stat, self.ret = LineBotHandler.initial_stat()
                 self.ret = '<ERROR: 0> wrong order of operations.'
-                self.linebot_api.reply_message(reply_token, TextSendMessage(self.ret))
+                self.linebot_token.reply_message(reply_token, TextSendMessage(self.ret))
 
             elif self.event['msg'] != 'None' and self.event['file1'] is None:
                 match self.event['msg'].lower():
@@ -280,7 +330,7 @@ class LineBotHandler(Interface):
                     case _:
                         self.ret = "<ERROR: 1> The format doesn't match type."
 
-                self.linebot_api.reply_message(reply_token, TextSendMessage(self.ret))
+                self.linebot_token.reply_message(reply_token, TextSendMessage(self.ret))
                 if self.event['msg'].lower() not in NORM_SERVE:
                     self.save_state_db(user_id, self.stat)
                     self.event, self.stat, self.ret = LineBotHandler.initial_stat()
@@ -311,7 +361,7 @@ class LineBotHandler(Interface):
                     case _:
                         self.ret = "<ERROR: 2> The format doesn't match type."
 
-                self.linebot_api.reply_message(reply_token, TextSendMessage(self.ret))
+                self.linebot_token.reply_message(reply_token, TextSendMessage(self.ret))
                 if self.stat['media_count'] == 0 and self.event['msg'].lower() in NORM_SERVE:
                     pass
 
@@ -326,7 +376,7 @@ class LineBotHandler(Interface):
             else:
                 self.event, self.stat, self.ret = LineBotHandler.initial_stat()
                 self.ret = '<ERROR: 3> UNKNOWN'
-                self.linebot_api.reply_message(reply_token, TextSendMessage(self.ret))
+                self.linebot_token.reply_message(reply_token, TextSendMessage(self.ret))
 
             if self.use_count % 10 == 0:
                 self.switch_gist()
