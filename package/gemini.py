@@ -3,8 +3,8 @@
 @author: PC
 """
 import base64
-from PIL import Image
 import google.generativeai as genai
+from PIL import Image
 
 MODEL_TYPE = 'gemini-1.5-flash'
 

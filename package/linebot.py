@@ -2,8 +2,8 @@
 """
 @author: PC
 """
-import os, copy, json, requests, subprocess
-import time
+import os, time, copy, json
+import requests, subprocess
 from subprocess import PIPE, STDOUT
 from decimal import Decimal, ROUND_HALF_UP
 from linebot import LineBotApi, WebhookHandler

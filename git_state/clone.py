@@ -17,7 +17,7 @@ if 'uniques_total' not in latest.keys():
 
 timestamps = {latest['clones'][i]['timestamp']: i for i in range(len(latest['clones']))}
 for i in range(len(now['clones'])):
-    timestamp = now['clones'][i]['timestamp']
+    timestamp = now['clones'][i]['timestamp'] 
     if timestamp in timestamps:
         latest['clones'][timestamps[timestamp]] = now['clones'][i]
     else:
