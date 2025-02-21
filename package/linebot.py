@@ -324,7 +324,7 @@ class LineBotHandler(Interface):
                         self.stat['text_count'] += 1
 
                     case msg if msg[:5] == 'admin':
-                        self.ret = self.gemini.casual_chat(msg[5:])
+                        self.ret = self.gemini.career_consultant_chat(msg[5:])
                         self.stat['text_count'] += 1
 
                     case _:
