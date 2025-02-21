@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 @author: PC
-Update Time: 2025-01-24
 FIXME   -參數
             PYTHONUNBUFFERED=1
             SAVE_PATH=./preprocess
