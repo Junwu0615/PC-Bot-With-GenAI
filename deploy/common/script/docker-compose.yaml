@@ -1,0 +1,49 @@
+version: '3.9'
+
+services:
+  ngrok:
+    image: wernight/ngrok
+    container_name: NGROK-Dockerization
+    command: ngrok http http://172.17.0.1:5000 --log stdout
+    env_file:
+      - .env
+    ports:
+      - '4040:4040'
+    restart: always
+
+  task:
+    build:
+      context: ../../docker
+      dockerfile: ./Dockerfile
+    container_name: PC-Bot-With-GenAI
+    command: PC-Bot-With-GenAI
+    image: pc-bot-with-genai:latest
+    privileged: true
+    user: 1998:1998
+    env_file:
+      - .env
+    security_opt:
+      - apparmor:unconfined
+      - seccomp:unconfined
+    tmpfs:
+      - /run
+      - /tmp
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - node.platform.arch == x86_64
+      replicas: 1
+    ports:
+      - '5000:5000'
+    networks:
+      - open_network
+    volumes:
+      - ../../:/builds/rep
+    depends_on:
+      - ngrok
+    restart: always
+
+networks:
+  open_network:
+    external: true

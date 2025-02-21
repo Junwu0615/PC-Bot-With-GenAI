@@ -1,0 +1,7 @@
+git+https://github.com/Junwu0615/Database-Template@main
+flask==3.0.0
+pillow==10.3.0
+requests==2.31.0
+line-bot-sdk==3.5.1
+beautifulsoup4==4.12.2
+google-generativeai==0.8.3

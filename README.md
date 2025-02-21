@@ -1,10 +1,15 @@
 <a href='https://github.com/Junwu0615/PC-Bot-With-GenAI'><img alt='GitHub Views' src='https://views.whatilearened.today/views/github/Junwu0615/PC-Bot-With-GenAI.svg'> 
 <a href='https://github.com/Junwu0615/PC-Bot-With-GenAI'><img alt='GitHub Views' src='https://img.shields.io/badge/dynamic/json?color=success&label=Clone&query=count_total&url=https://gist.githubusercontent.com/Junwu0615/8c304a23bb8dad13ba9658dbaa3f806c/raw/PC-Bot-With-GenAI_clone.json&logo=github](https://github.com/Junwu0615/PC-Bot-With-GenAI'> <br>
 [![](https://img.shields.io/badge/Project-GenAI_API-blue.svg?style=plastic)](https://github.com/Junwu0615/PC-Bot-With-GenAI) 
-[![](https://img.shields.io/badge/Project-Docker-blue.svg?style=plastic)](https://github.com/Junwu0615/PC-Bot-With-GenAI) 
-[![](https://img.shields.io/badge/Platform-Linebot-blue.svg?style=plastic)](https://developers.line.biz/zh-hant/) 
-[![](https://img.shields.io/badge/Platform-Ngrok-blue.svg?style=plastic)](https://ngrok.com/)
-[![](https://img.shields.io/badge/Language-Python_3.12.0-blue.svg?style=plastic)](https://www.python.org/) <br>
+[![](https://img.shields.io/badge/Project-Docker-blue.svg?style=plastic)](https://github.com/Junwu0615/PC-Bot-With-GenAI)
+[![](https://img.shields.io/badge/Language-Python_3.12.0-blue.svg?style=plastic)](https://www.python.org/) 
+[![](https://img.shields.io/badge/Operating_System-Windows_10-blue.svg?style=plastic)](https://www.microsoft.com/zh-tw/software-download/windows10) <br>
+[![](https://img.shields.io/badge/Platform-AWS-red.svg?style=plastic)](https://aws.amazon.com/) 
+[![](https://img.shields.io/badge/Platform-Azure-red.svg?style=plastic)](https://azure.microsoft.com/zh-tw) 
+[![](https://img.shields.io/badge/Platform-GCP-red.svg?style=plastic)](https://cloud.google.com/) 
+[![](https://img.shields.io/badge/Platform-Linebot-red.svg?style=plastic)](https://developers.line.biz/zh-hant/) 
+[![](https://img.shields.io/badge/Platform-Ngrok-red.svg?style=plastic)](https://ngrok.com/) <br>
+[![](https://img.shields.io/badge/Database-SQL_Server-yellow.svg?style=plastic)](https://www.microsoft.com/zh-tw/sql-server/sql-server-downloads)
 [![](https://img.shields.io/badge/Package-Google_Generativeai_0.8.3-green.svg?style=plastic)](https://pypi.org/project/requests/) 
 [![](https://img.shields.io/badge/Package-Flask_3.0.0-green.svg?style=plastic)](https://pypi.org/project/Flask/) 
 [![](https://img.shields.io/badge/Package-LineBot_SDK_3.5.1-green.svg?style=plastic)](https://pypi.org/project/line-bot-sdk/) 
@@ -23,7 +28,7 @@
 | 變更隱私設定 | `PROPRIETARY PROJECT` to `OPEN SOURCE PROJECT` | 2025-02-16 |
 | 微調 Prompt Engineering | `E. Prompt Engineering` | 2025-02-22 |
 | 部署至 3 大公雲 | AWS / Azure / GCP | - |
-| GCP | `note/gcp.md` | - |
+| GCP | `note/gcp.md` | 2025-02-23 |
 | AWS | `note/aws.md` | - |
 | Azure | `note/azure.md` | - |
 
@@ -92,8 +97,8 @@ python Entry.py
     你是一位專業的繁體中文職涯顧問
     問題內容: {msg}
     遵守下列條件:
-    - 只顯示答覆結果，無贅詞，無多餘換行等
-    - 請勿幻覺答覆
+    - 只顯示答覆結果，無贅詞，無多餘換行等。
+    - 請勿幻覺答覆。
     """
     ```
 - ![png](./sample/00.PNG)
@@ -149,9 +154,9 @@ prompt = f"""
 * 評估可能富含的營養成分。
 * 推估可能的熱量。
 * 遵守下列條件:
-- 只顯示答覆結果，無贅詞，無多餘換行等
-- 無法識別也明確答覆
-- 請勿幻覺答覆
+- 只顯示答覆結果，無贅詞，無多餘換行等。
+- 無法識別也明確答覆。
+- 請勿幻覺答覆。
 """
 ```
 ![png](./sample/04.PNG)
@@ -162,9 +167,9 @@ prompt = f"""
 我希望你扮演 "閱覽無數個迷因內容的迷因大師" 的角色。
 * 這張迷因圖可能的名稱?
 * 遵守下列條件:
-- 名稱用[英文表達]
-- 只顯示答覆結果，無贅詞，無多餘換行等
-- 請勿幻覺答覆
+- 名稱用[英文表達]。
+- 只顯示答覆結果，無贅詞，無多餘換行等。
+- 請勿幻覺答覆。
 """
 ```
 ![png](./sample/05.PNG)
