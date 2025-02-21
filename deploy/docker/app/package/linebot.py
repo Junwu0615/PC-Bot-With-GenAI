@@ -2,8 +2,8 @@
 """
 @author: PC
 """
-import os, copy, json, requests, subprocess
-import time
+import os, time, copy, json
+import requests, subprocess
 from subprocess import PIPE, STDOUT
 from decimal import Decimal, ROUND_HALF_UP
 from linebot import LineBotApi, WebhookHandler
@@ -324,7 +324,7 @@ class LineBotHandler(Interface):
                         self.stat['text_count'] += 1
 
                     case msg if msg[:5] == 'admin':
-                        self.ret = self.gemini.casual_chat(msg[5:])
+                        self.ret = self.gemini.career_consultant_chat(msg[5:])
                         self.stat['text_count'] += 1
 
                     case _:
