@@ -54,7 +54,7 @@ PC-Bot-With-GenAI/deploy/aws
 ![png](../sample/aws_cli_01.PNG)
 
 ### *STEP3.　確認是否安裝成功*
-```Text
+```bash
 aws --version
 ```
 ![png](../sample/aws_cli_02.PNG)
@@ -100,24 +100,24 @@ aws --version
     ![png](../sample/aws_user_07.PNG)
 
 - #### *e　初始化 CLI*
-    ```Text
+    ```bash
     aws configure
     # Access key ID
     # Secret access key
-    # Default region name: ap-southeast-2
-    # Default output format: 直接按 Enter
+    # Default region name → ap-southeast-2
+    # Default output format → 按 Enter
     ```
     ![png](../sample/aws_user_08.PNG)
     ![png](../sample/aws_user_09.PNG)
 
 - #### *f　測試權限*
-    ```Text
+    ```bash
     aws ec2 describe-instances
     ```
     ![png](../sample/aws_user_10.PNG)
 
 ### *STEP3.　連線到 EC2 VM*
-```Text
+```bash
 # vm_genai_bot_key.pem → [SSH 金鑰]
 # ubuntu → [Ubuntu 使用者]
 # 54.206.113.236 → [EC2 的 Public IPv4]

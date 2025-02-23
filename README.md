@@ -20,17 +20,17 @@
 | 項目 | 內容 | 完成時間 |
 |:--:|:--:|:--:|
 | 專案初次上架 | - | 2025-01-08 |
-| 新增 `Google Gemini` 建置 | - | 2025-01-08 |
-| 新增 `資料庫` 建置 | - | 2025-01-08 |
-| 新增 `License` | Apache-2.0 license | 2025-01-14 |
+| 新增 Google Gemini 建置 | - | 2025-01-08 |
+| 新增資料庫建置 | [Database Construction](https://github.com/Junwu0615/Database-Template) | 2025-01-08 |
+| 新增 License | `Apache-2.0 license` | 2025-01-14 |
 | Dockerization | `note/docker.md` | 2025-01-24 |
-| NGROK `自動更新 Webhook` | - | 2025-02-02 |
+| 優化 NGROK | NGROK 自動更新 Webhook 邏輯 | 2025-02-02 |
 | 變更隱私設定 | `PROPRIETARY PROJECT` to `OPEN SOURCE PROJECT` | 2025-02-16 |
 | 微調 Prompt Engineering | `E. Prompt Engineering` | 2025-02-22 |
 | 部署至 3 大公雲 | AWS / Azure / GCP | - |
 | GCP | `note/gcp.md` | 2025-02-23 |
 | AWS | `note/aws.md` | 2025-02-23 |
-| Azure | `note/azure.md` | - |
+| Azure | `note/azure.md` | 2025-02-23 |
 
 <br>
 

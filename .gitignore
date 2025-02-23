@@ -6,4 +6,5 @@ __pycache__
 venv
 preprocess
 vm_genai_bot.pem
+vm-genai-bot_key.pem
 CLI_worker_accessKeys.csv
