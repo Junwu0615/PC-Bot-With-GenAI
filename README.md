@@ -29,7 +29,7 @@
 | 微調 Prompt Engineering | `E. Prompt Engineering` | 2025-02-22 |
 | 部署至 3 大公雲 | AWS / Azure / GCP | - |
 | GCP | `note/gcp.md` | 2025-02-23 |
-| AWS | `note/aws.md` | - |
+| AWS | `note/aws.md` | 2025-02-23 |
 | Azure | `note/azure.md` | - |
 
 <br>

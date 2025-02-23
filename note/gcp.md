@@ -55,7 +55,7 @@ PC-Bot-With-GenAI/deploy/gcp
 
 ### *✔️ C.　Deploy ( Compute Engine: VM )*
 
-#### *Notice: Linux 常見指令或快捷鍵*
+### *Notice: Linux 常見指令或快捷鍵*
 ```Text
 # 貼上: shift + ins
 # 強制刪除檔案夾: sudo rm -rf PC-Bot-With-GenAI
@@ -66,7 +66,7 @@ PC-Bot-With-GenAI/deploy/gcp
 # 複製檔案夾: cp -r common gcp/
 ```
 
-#### *STEP1.　[Installation SDK](https://cloud.google.com/sdk/docs/install-sdk)*
+### *STEP1.　[Installation SDK](https://cloud.google.com/sdk/docs/install-sdk)*
 ```bash
 (New-Object Net.WebClient).DownloadFile("https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe", "$env:Temp\GoogleCloudSDKInstaller.exe")
 
@@ -74,30 +74,30 @@ PC-Bot-With-GenAI/deploy/gcp
 ```
 ![png](../sample/gcp_cr_00.PNG)
 
-#### *STEP2.　Y 授權帳戶*
+### *STEP2.　Y 授權帳戶*
 ![png](../sample/gcp_cr_01.PNG)
 
-#### *STEP3.　選擇欲使用專案 ( 若無則先忽略 )*
+### *STEP3.　選擇欲使用專案 ( 若無則先忽略 )*
 ![png](../sample/gcp_cr_02.PNG)
 ![png](../sample/gcp_cr_03.PNG)
 
-#### *STEP4.　查詢專案 ID 並切換專案 ( UI 介面創立專案後，執行此步驟 )*
+### *STEP4.　查詢專案 ID 並切換專案 ( UI 介面創立專案後，執行此步驟 )*
 ```bash
-# [YOUR_PROJECT_ID] = vm-genai-bot 
+# [YOUR_PROJECT_ID] → vm-genai-bot 
 gcloud projects list
 gcloud config set project vm-genai-bot
 ```
 ![png](../sample/gcp_vm_03.PNG)
 
-#### *STEP5.　用 UI 介面創立 VM*
+### *STEP5.　用 UI 介面創立 VM*
 - ![png](../sample/gcp_vm_00.PNG)
 - ![png](../sample/gcp_vm_01.PNG)
 - ![png](../sample/gcp_vm_02.PNG)
 - 點擊建立
 
-#### *STEP6.　查詢 VM ID 並切換 VM*
+### *STEP6.　查詢 VM ID 並切換 VM*
 ```bash
-# [你的VM名稱] = instance-1 # [你的VM區域] = us-central1-c
+# [你的VM名稱] → instance-1 # [你的VM區域] → us-central1-c
 gcloud compute instances list
 gcloud compute ssh instance-1 --zone=us-central1-c
 ```
@@ -105,7 +105,7 @@ gcloud compute ssh instance-1 --zone=us-central1-c
 ![png](../sample/gcp_vm_05.PNG)
 ![png](../sample/gcp_vm_06.PNG)
 
-#### *STEP7.　在 VM 進行必要安裝，啟動 USER 權限，最後離開 VM*
+### *STEP7.　在 VM 進行必要安裝，啟動 USER 權限，最後離開 VM*
 ```bash
 sudo apt update && sudo apt install -y docker.io docker-compose git
 sudo systemctl enable docker
@@ -115,14 +115,14 @@ exit
 ```
 ![png](../sample/gcp_vm_07.PNG)
 
-#### *STEP8.　重新進入 VM，並 Clone 專案*
+### *STEP8.　重新進入 VM，並 Clone 專案*
 ```bash
-# [你的VM名稱] = instance-2 # [你的VM區域] = us-central1-c
+# [你的VM名稱] → instance-2 # [你的VM區域] → us-central1-c
 gcloud compute ssh instance-2 --zone=us-central1-c
 git clone https://github.com/Junwu0615/PC-Bot-With-GenAI.git
 ```
 
-#### *STEP9.　新增必要檔案並進入腳本路徑*
+### *STEP9.　新增必要檔案並進入腳本路徑*
 ```bash
 ls -a # 確認目錄檔案
 cd PC-Bot-With-GenAI/deploy
@@ -131,13 +131,13 @@ cd gcp/common/ # 進入目錄
 mkdir app/preprocess/ # 創建檔案夾
 ```
 
-#### *STEP10.　啟動 docker swarm 和 docker network*
+### *STEP10.　啟動 docker swarm 和 docker network*
 ```bash
 docker swarm init
 docker network create --driver=overlay open_network
 ```
 
-#### *STEP11.　新增 .env*
+### *STEP11.　新增 .env*
 ```bash
 cat <<EOF > script/.env # 開始編輯
 # -- 輸入變數 --
@@ -157,7 +157,7 @@ EOF # 結束編輯
 cat script/.env # 查看檔案
 ```
 
-#### *STEP12.　build images & compose up*
+### *STEP12.　build images & compose up*
 ```bash
 docker build -t pc-bot-with-genai:latest -f script/Dockerfile . --no-cache
 docker stack deploy -c script/docker-compose.yaml pc-bot-with-genai
@@ -165,7 +165,7 @@ docker stack deploy -c script/docker-compose.yaml pc-bot-with-genai
 ![png](../sample/gcp_vm_08.PNG)
 ![png](../sample/gcp_vm_09.PNG)
 
-#### *STEP13.　檢視運行狀態*
+### *STEP13.　檢視運行狀態*
 ```bash
 docker ps -a
 docker images -a
@@ -181,7 +181,7 @@ docker service logs -f pc-bot-with-genai_task
 
 ### *❌ D.　Deploy ( Cloud Run )*
 
-#### *STEP1.　[Installation SDK](https://cloud.google.com/sdk/docs/install-sdk)*
+### *STEP1.　[Installation SDK](https://cloud.google.com/sdk/docs/install-sdk)*
 ```bash
 (New-Object Net.WebClient).DownloadFile("https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe", "$env:Temp\GoogleCloudSDKInstaller.exe")
 
@@ -189,70 +189,70 @@ docker service logs -f pc-bot-with-genai_task
 ```
 ![png](../sample/gcp_cr_00.PNG)
 
-#### *STEP2.　Y 授權帳戶*
+### *STEP2.　Y 授權帳戶*
 ![png](../sample/gcp_cr_01.PNG)
 
-#### *STEP3.　選擇欲使用專案*
+### *STEP3.　選擇欲使用專案*
 ![png](../sample/gcp_cr_02.PNG)
 ![png](../sample/gcp_cr_03.PNG)
 
-#### *STEP4.　啟用 API*
+### *STEP4.　啟用 API*
 ```bash
-# pc-bot-with-genai = [YOUR_PROJECT_ID]
+# pc-bot-with-genai → [YOUR_PROJECT_ID]
 gcloud projects list
 gcloud config set project [YOUR_PROJECT_ID]
 gcloud services enable run.googleapis.com artifactregistry.googleapis.com
 ```
 ![png](../sample/gcp_cr_04.PNG)
 
-#### *STEP5.　設定 GCP 區域*
+### *STEP5.　設定 GCP 區域*
 ```bash
 gcloud config set run/region asia-east1 # 台灣區域
 ```
 
-#### *STEP6.　建立 Artifact Registry 儲存庫*
+### *STEP6.　建立 Artifact Registry 儲存庫*
 ```bash
 # 在 asia-east1 建立一個 pc-bot Docker 映像儲存庫
 gcloud artifacts repositories create pc-bot --location=asia-east1 --repository-format=docker
 ```
 ![png](../sample/gcp_cr_05.PNG)
 
-#### *STEP7.　進入腳本路徑*
+### *STEP7.　進入腳本路徑*
 ```bash
 cd .\deploy\gcp\
 ```
 
-#### *STEP8.　設定 Docker 登入*
+### *STEP8.　設定 Docker 登入*
 ```bash
 gcloud auth configure-docker asia-east1-docker.pkg.dev
 ```
 ![png](../sample/gcp_cr_06.PNG)
 
-#### *STEP9.　建立 Docker Images*
+### *STEP9.　建立 Docker Images*
 ```bash
-# pc-bot-with-genai = [YOUR_PROJECT_ID]
+# pc-bot-with-genai → [YOUR_PROJECT_ID]
 docker build -t asia-east1-docker.pkg.dev/pc-bot-with-genai/pc-bot:v1.0.1 -f script/Dockerfile . --no-cache
 ```
 ![png](../sample/gcp_cr_07.PNG)
 ![png](../sample/gcp_cr_08.PNG)
 
-#### *❌ STEP10.　推送 Docker Images 到 GCP Artifact Registry*
+### *❌ STEP10.　推送 Docker Images 到 GCP Artifact Registry*
 ```bash
-# pc-bot-with-genai = [YOUR_PROJECT_ID]
+# pc-bot-with-genai → [YOUR_PROJECT_ID]
 docker push asia-east1-docker.pkg.dev/pc-bot-with-genai/pc-bot:v1.0.1
 ```
 ![png](../sample/gcp_cr_09.PNG)
 ![png](../sample/gcp_cr_10.PNG)
 
-#### *❌ STEP11.　部署到 Cloud Run*
+### *❌ STEP11.　部署到 Cloud Run*
 ```bash
-# pc-bot-with-genai = [YOUR_PROJECT_ID]
+# pc-bot-with-genai → [YOUR_PROJECT_ID]
 gcloud run deploy pc-bot --image asia-east1-docker.pkg.dev/pc-bot-with-genai/pc-bot:v1.0.1 --platform managed --region asia-east1 --allow-unauthenticated
 
 gcloud run deploy ngrok --image wernight/ngrok --platform managed --region us-central1 --allow-unauthenticated
 ```
 
-#### *❌ STEP12.　監控與管理*
+### *❌ STEP12.　監控與管理*
 - #### 查看日誌
     ```bash
     gcloud logging read "resource.type=cloud_run_revision"
@@ -267,70 +267,70 @@ gcloud run deploy ngrok --image wernight/ngrok --platform managed --region us-ce
 <br>
 
 ### *E.　Other Command*
-#### *確認已登入帳戶*
+### *確認已登入帳戶*
 ```bash
 gcloud auth list
 ```
 
-#### *確認既有專案 ID*
+### *確認既有專案 ID*
 ```bash
 gcloud projects list
 ```
 
-#### *確認 API 已啟用*
+### *確認 API 已啟用*
 ```bash
 gcloud services list --enabled --filter="artifactregistry.googleapis.com"
 ```
 
-#### *確認 Artifact Registry 是否存在*
+### *確認 Artifact Registry 是否存在*
 ```bash
 # location # asia-east1 # 預期 pc-bot
 gcloud artifacts repositories list --location=asia-east1
 ```
 
-#### *確認 IAM 權限 ( 確保帳戶有權限推送 Docker Images )*
+### *確認 IAM 權限 ( 確保帳戶有權限推送 Docker Images )*
 ```bash
 gcloud projects get-iam-policy pc-bot-with-genai --flatten="bindings[].members" --format="table(bindings.role, bindings.members)"
 ```
 
-#### *更新 IAM 權限*
+### *更新 IAM 權限*
 ```bash
-# jun.audis5@gmail.com = [YOUR_GMAIL]
+# jun.audis5@gmail.com → [YOUR_GMAIL]
 gcloud projects add-iam-policy-binding pc-bot-with-genai --member=user:jun.audis5@gmail.com --role=roles/artifactregistry.admin
 gcloud projects add-iam-policy-binding pc-bot-with-genai --member=user:jun.audis5@gmail.com --role=roles/artifactregistry.writer
 ```
 
-#### *重新登入*
+### *重新登入*
 ```bash
-# jun.audis5@gmail.com = [YOUR_GMAIL]
+# jun.audis5@gmail.com → [YOUR_GMAIL]
 gcloud auth revoke # 取消目前已登入的 Google 帳戶授權
 gcloud auth login #  重新授權
 gcloud config set account jun.audis5@gmail.com
 gcloud auth configure-docker asia-east1-docker.pkg.dev # asia-east1 = location 
 ```
 
-#### *替換 Tag*
+### *替換 Tag*
 ```bash
 docker tag asia-east1-docker.pkg.dev/pc-bot-with-genai/pc-bot:latest asia-east1-docker.pkg.dev/pc-bot-with-genai/pc-bot:v1.0.1
 ```
 
-#### *嘗試直接拉取不存在的 Images ( 確保有權限存取 )*
+### *嘗試直接拉取不存在的 Images ( 確保有權限存取 )*
 ```bash
 docker pull asia-east1-docker.pkg.dev/pc-bot-with-genai/pc-bot:non-existent
 ```
 
-#### *更新 gcloud*
+### *更新 gcloud*
 ```bash
 gcloud components update
 ```
 
-#### *刪除並重新建立 pc-bot 儲存庫*
+### *刪除並重新建立 pc-bot 儲存庫*
 ```bash
 gcloud artifacts repositories delete pc-bot --location=asia-east1 --quiet
 gcloud artifacts repositories create pc-bot --location=asia-east1 --repository-format=docker
 ```
 
-#### *確認儲存庫的 Images List*
+### *確認儲存庫的 Images List*
 ```bash
 gcloud artifacts docker images list asia-east1-docker.pkg.dev/pc-bot-with-genai/pc-bot
 ```

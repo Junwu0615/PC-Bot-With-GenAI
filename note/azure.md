@@ -20,7 +20,7 @@
 
 ### *Notice.　與 Docker 版本差異在於 `取消 DB 存取設置`*
 
-### *Directory Structure Diagram ( 部署後實際內部結構 )*
+### *A.　Directory Structure Diagram ( 部署後實際內部結構 )*
 ```commandline
 PC-Bot-With-GenAI/deploy/azure
   ├── .gitkeep

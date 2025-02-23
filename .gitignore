@@ -5,3 +5,5 @@ __pycache__
 .env
 venv
 preprocess
+vm_genai_bot.pem
+CLI_worker_accessKeys.csv
