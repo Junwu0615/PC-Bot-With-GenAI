@@ -66,7 +66,7 @@ class LineBotHandler(Interface):
     def update_webhook(self):
         try:
             self.log_warning('Wait for NGROK to start (10s) ...')
-            time.sleep(10)
+            time.sleep(15)
             self.log_warning('Update Linebot Webhook...')
             linebot_token = os.environ.get('LINE_ACCESS_TOKEN')
             args = 'curl -s http://localhost:4040/api/tunnels' if os.environ.get('DOCKER_BOOL') is None \

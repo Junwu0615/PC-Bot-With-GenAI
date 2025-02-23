@@ -81,7 +81,7 @@ python Entry.py
 <br>
 
 ## *D.　Deploy*
-| Deployment | Level |
+| Deployment | Difficulty |
 |:--:|:--:|
 | [*Docker*](./note/docker.md) | - |
 | [*Amazon Web Services*](./note/aws.md) | ⭐⭐ |
