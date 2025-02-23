@@ -10,7 +10,7 @@
 [![](https://img.shields.io/badge/Platform-Linebot-red.svg?style=plastic)](https://developers.line.biz/zh-hant/) 
 [![](https://img.shields.io/badge/Platform-Ngrok-red.svg?style=plastic)](https://ngrok.com/) <br>
 [![](https://img.shields.io/badge/Database-SQL_Server-yellow.svg?style=plastic)](https://www.microsoft.com/zh-tw/sql-server/sql-server-downloads)
-[![](https://img.shields.io/badge/Package-Google_Generativeai_0.8.3-green.svg?style=plastic)](https://pypi.org/project/requests/) 
+[![](https://img.shields.io/badge/Package-Google_Generativeai_0.8.3-green.svg?style=plastic)](https://pypi.org/project/google-generativeai/) 
 [![](https://img.shields.io/badge/Package-Flask_3.0.0-green.svg?style=plastic)](https://pypi.org/project/Flask/) 
 [![](https://img.shields.io/badge/Package-LineBot_SDK_3.5.1-green.svg?style=plastic)](https://pypi.org/project/line-bot-sdk/) 
 
@@ -20,7 +20,7 @@
 | 項目 | 內容 | 完成時間 |
 |:--:|:--:|:--:|
 | 專案初次上架 | - | 2025-01-08 |
-| 新增 Google Gemini 建置 | - | 2025-01-08 |
+| 新增 [Google Gemini](https://gemini.google.com/) 建置 | - | 2025-01-08 |
 | 新增資料庫建置 | [Database Construction](https://github.com/Junwu0615/Database-Template) | 2025-01-08 |
 | 新增 License | `Apache-2.0 license` | 2025-01-14 |
 | Dockerization | `note/docker.md` | 2025-01-24 |
@@ -81,11 +81,12 @@ python Entry.py
 <br>
 
 ## *D.　Deploy*
-
-- ### [*⭐ Docker ⭐*](./note/docker.md)
-- ### [*⭐ Amazon Web Services ⭐*](./note/aws.md)
-- ### [*⭐ Microsoft Azure ⭐*](./note/azure.md)
-- ### [*⭐ Google Cloud Platform ⭐*](./note/gcp.md)
+| Deployment | Level |
+|:--:|:--:|
+| [*Docker*](./note/docker.md) | - |
+| [*Amazon Web Services*](./note/aws.md) | ⭐⭐ |
+| [*Microsoft Azure*](./note/azure.md) | ⭐ |
+| [*Google Cloud Platform*](./note/gcp.md) | ⭐⭐⭐ |
 
 <br>
 
