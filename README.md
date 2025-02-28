@@ -16,7 +16,7 @@
 
 <br>
 
-## *A.　Current progress*
+## *A.　Current Progress*
 | 項目 | 內容 | 完成時間 |
 |:--:|:--:|:--:|
 | 專案初次上架 | - | 2025-01-08 |
