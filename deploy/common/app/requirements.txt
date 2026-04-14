@@ -1,5 +1,5 @@
 git+https://github.com/Junwu0615/Database-Template@main
-flask==3.0.0
+flask==3.1.3
 pillow==12.2.0
 requests==2.32.0
 line-bot-sdk==2.3.0
