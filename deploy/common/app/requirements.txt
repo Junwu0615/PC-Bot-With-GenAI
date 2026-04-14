@@ -1,6 +1,6 @@
 git+https://github.com/Junwu0615/Database-Template@main
 flask==3.0.0
-pillow==10.3.0
+pillow==12.2.0
 requests==2.32.0
 line-bot-sdk==2.3.0
 beautifulsoup4==4.12.2
